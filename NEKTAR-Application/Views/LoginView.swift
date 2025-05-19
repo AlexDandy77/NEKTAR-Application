@@ -42,6 +42,8 @@ struct LoginView: View {
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
                             .textContentType(.emailAddress)
+                            .foregroundColor(.black) // Ensures text is black in both themes
+                            .accentColor(.black) // Ensures caret is black in both themes
                     }
                     .padding(EdgeInsets(top: 8, leading: 15, bottom: 8, trailing: 15))
                     .background(Color.white.opacity(0.9))
@@ -56,6 +58,8 @@ struct LoginView: View {
                         SecureField("Password", text: $password)
                             .padding(12)
                             .textContentType(.password)
+                            .foregroundColor(.black) // Ensures text is black in both themes
+                            .accentColor(.black) // Ensures caret is black in both themes
                     }
                     .padding(EdgeInsets(top: 8, leading: 15, bottom: 8, trailing: 15))
                     .background(Color.white.opacity(0.9))

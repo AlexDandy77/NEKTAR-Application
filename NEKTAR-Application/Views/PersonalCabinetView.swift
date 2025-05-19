@@ -5,7 +5,7 @@ struct PersonalCabinetView: View {
     @State private var cabinetItems: [CabinetItem] = []
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
-    @State private var showingJsonForItem: CabinetItem? = nil // For modal
+    @State private var showingTopologyForItem: CabinetItem? = nil
 
     let cabinetItemsURL = URL(string: "\(baseURLString)/api/cabinet")! // TODO Replace
 
@@ -58,25 +58,24 @@ struct PersonalCabinetView: View {
                         List {
                             ForEach(cabinetItems) { item in
                                 CabinetItemRow(item: item) {
-                                    // Action to show JSON, could be a modal or navigation
-                                    self.showingJsonForItem = item
+                                    // Action to show Topology View
+                                    self.showingTopologyForItem = item // Set the item to show topology for
                                 }
-                                .listRowBackground(Color.white.opacity(0.6)) // Make rows slightly transparent
+                                .listRowBackground(Color.white.opacity(0.6))
                             }
                         }
-                        .listStyle(InsetGroupedListStyle()) // A modern list style
-                        .background(Color.clear) // Make list background clear to see gradient
-                        .onAppear { // Ensure list rows are styled correctly on appear
+                        .listStyle(InsetGroupedListStyle())
+                        .background(Color.clear)
+                        .onAppear {
                              UITableView.appearance().backgroundColor = .clear
                              UITableViewCell.appearance().backgroundColor = .clear
                         }
                     }
                 }
                 .navigationTitle("Personal Cabinet")
-                .navigationBarTitleDisplayMode(.inline) // Or .large
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        // Example: User profile icon
                         Image(systemName: "person.crop.circle.fill")
                             .foregroundColor(.white)
                             .imageScale(.large)
@@ -96,15 +95,22 @@ struct PersonalCabinetView: View {
                 .onAppear {
                     fetchCabinetItems()
                 }
-                // Modal to display JSON
-                .sheet(item: $showingJsonForItem) { item in
-                    JsonDetailView(jsonData: item.jsonData)
+                // Present the TopologyRealityView as a sheet
+                .sheet(item: $showingTopologyForItem) { item in
+                    // Attempt to parse jsonData into ReactFlowData
+                    if let data = item.jsonData.data(using: .utf8),
+                       let reactFlowData = try? JSONDecoder().decode(ReactFlowData.self, from: data) {
+                        TopologyRealityView(reactFlowData: reactFlowData)
+                    } else {
+                        // Fallback: If parsing fails, show the raw JSON
+                        JsonDetailView(jsonData: item.jsonData)
+                            .presentationDetents([.medium, .large]) // Adjust sheet size for JSON
+                    }
                 }
             }
-            // Set navigation bar appearance for this view
-            .toolbarBackground(Material.thin, for: .navigationBar) // Make nav bar transparent
-            .toolbarBackground(.visible, for: .navigationBar) // Ensure it's visible
-            .toolbarColorScheme(.dark, for: .navigationBar) // Ensure icons/text are white
+            .toolbarBackground(Material.thin, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
     }
 
@@ -112,24 +118,44 @@ struct PersonalCabinetView: View {
     func fetchCabinetItems() {
         isLoading = true
         errorMessage = nil
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            // This is your mock data. In a real scenario, you'd fetch this from your backend
+            // and include authentication token in the request headers.
+            let topologyJsonData = """
+{
+            "react_flow": {
+                "edges": [
+                    { "animated": true, "id": "e0", "source": "3", "target": "4", "type": "straight" },
+                    { "animated": true, "id": "e1", "source": "1", "target": "4", "type": "straight" },
+                    { "animated": true, "id": "e2", "source": "2", "target": "4", "type": "straight" },
+                    { "animated": true, "id": "e3", "source": "4", "target": "9", "type": "straight" },
+                    { "animated": true, "id": "e4", "source": "6", "target": "5", "type": "straight" },
+                    { "animated": true, "id": "e5", "source": "8", "target": "5", "type": "straight" },
+                    { "animated": true, "id": "e6", "source": "7", "target": "5", "type": "straight" },
+                    { "animated": true, "id": "e7", "source": "5", "target": "9", "type": "straight" },
+                    { "animated": true, "id": "e8", "source": "4", "target": "5", "type": "straight" }
+                ],
+                "nodes": [
+                    { "data": { "coordinates": "168.5 288.0", "interface": { "bandwidth": 100, "ip": "192.168.1.10", "name": "FastEthernet0" }, "label": "PC0", "power_on": true, "src": "/images/pc.png", "type": "pc" }, "id": "1", "position": { "x": 168.5, "y": 288.0 }, "type": "custom" },
+                    { "data": { "coordinates": "284.5 365.0", "interface": { "bandwidth": 100, "ip": "192.168.1.12", "name": "FastEthernet0" }, "label": "Laptop0", "power_on": true, "src": "/images/laptop.png", "type": "laptop" }, "id": "2", "position": { "x": 284.5, "y": 365.0 }, "type": "custom" },
+                    { "data": { "coordinates": "175.0 166.0", "interface": { "bandwidth": 100, "ip": "192.168.1.11", "name": "FastEthernet0" }, "label": "Server0", "power_on": true, "src": "/images/server.png", "type": "server" }, "id": "3", "position": { "x": 175.0, "y": 166.0 }, "type": "custom" },
+                    { "data": { "coordinates": "343.0 227.0", "interface": { "bandwidth": 100, "ip": "0.0.0.0", "name": "FastEthernet0" }, "label": "Switch0", "power_on": true, "src": "/images/switch.png", "type": "switch" }, "id": "4", "position": { "x": 343.0, "y": 227.0 }, "type": "custom" },
+                    { "data": { "coordinates": "536.0 227.0", "interface": { "bandwidth": 100, "ip": "0.0.0.0", "name": "FastEthernet0" }, "label": "Switch1", "power_on": true, "src": "/images/switch.png", "type": "switch" }, "id": "5", "position": { "x": 536.0, "y": 227.0 }, "type": "custom" },
+                    { "data": { "coordinates": "638.5 363.0", "interface": { "bandwidth": 100, "ip": "192.168.2.12", "name": "FastEthernet0" }, "label": "PC1", "power_on": true, "src": "/images/pc.png", "type": "pc" }, "id": "6", "position": { "x": 638.5, "y": 363.0 }, "type": "custom" },
+                    { "data": { "coordinates": "739.5 169.0", "interface": { "bandwidth": 100, "ip": "192.168.2.10", "name": "FastEthernet0" }, "label": "Laptop1", "power_on": true, "src": "/images/laptop.png", "type": "laptop" }, "id": "7", "position": { "x": 739.5, "y": 169.0 }, "type": "custom" },
+                    { "data": { "coordinates": "724.0 287.0", "interface": { "bandwidth": 100, "ip": "192.168.2.11", "name": "FastEthernet0" }, "label": "Server1", "power_on": true, "src": "/images/server.png", "type": "server" }, "id": "8", "position": { "x": 724.0, "y": 287.0 }, "type": "custom" },
+                    { "data": { "coordinates": "449.5 314.0", "interface": { "bandwidth": 1000, "ip": "0.0.0.0", "name": "FastEthernet0" }, "label": "Router0", "power_on": true, "src": "/images/router.png", "type": "router" }, "id": "9", "position": { "x": 449.5, "y": 314.0 }, "type": "custom" }
+                ]
+            }
+        }
+"""
 
-        // MOCK IMPLEMENTATION: Replace with actual network request
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { // Simulate network delay
-            // In a real app, you'd use URLSession here with the authToken in headers
-            // For example: request.setValue("Bearer \(authService.authToken ?? "")", forHTTPHeaderField: "Authorization")
-
-            // Example of successful mock data
             self.cabinetItems = [
-                CabinetItem(title: "Important Document", description: "Contains critical project details.", jsonData: #"{"projectId": "Alpha123", "status": "active", "dueDate": "2025-12-31"}"#),
-                CabinetItem(title: "Vacation Photos", description: "Memories from the last trip.", jsonData: #"{"location": "Paris", "year": 2024, "album": ["eiffel_tower.jpg", "louvre.png"]}"#),
-                CabinetItem(title: "Recipe Book", description: "Collection of favorite recipes.", jsonData: #"{"category": "Desserts", "recipes": [{"name": "Chocolate Cake", "prepTime": "30 mins"}]}"#)
+                CabinetItem(title: "Network Topology 1", description: "Complex office network diagram.", jsonData: topologyJsonData),
+                CabinetItem(title: "Small Office Network", description: "Basic home office setup.", jsonData: #"{ "react_flow": { "edges": [ { "animated": true, "id": "e0", "source": "router-a", "target": "pc-a", "type": "straight" } ], "nodes": [ { "data": { "label": "Router-A", "type": "router" }, "id": "router-a", "position": { "x": 100.0, "y": 100.0 }, "type": "custom" }, { "data": { "label": "PC-A", "type": "pc" }, "id": "pc-a", "position": { "x": 200.0, "y": 200.0 }, "type": "custom" } ] } }"#)
             ]
             isLoading = false
-
-            // Example of error handling (uncomment to test)
-            // self.errorMessage = "Could not connect to the server."
-            // self.cabinetItems = []
-            // isLoading = false
         }
     }
 }
