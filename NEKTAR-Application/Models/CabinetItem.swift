@@ -1,17 +1,23 @@
-import SwiftUI
+import Foundation
 
-// Structure for items in the Personal Cabinet
 struct CabinetItem: Identifiable, Codable {
-    let id: UUID // For Identifiable
+    let id: Int
     let title: String
-    let description: String
-    let jsonData: String // To store the associated JSON as a string
+    let jsonData: String
+    let createdAt: String // Use camelCase for Swift properties
 
-    // Example initializer for mock data
-    init(id: UUID = UUID(), title: String, description: String, jsonData: String) {
+    init(id: Int, title: String, jsonData: String, createdAt: String) {
         self.id = id
         self.title = title
-        self.description = description
         self.jsonData = jsonData
+        self.createdAt = createdAt
+    }
+
+    // CodingKeys to map backend JSON keys to Swift property names
+    enum CodingKeys: String, CodingKey {
+        case id
+        case title
+        case jsonData = "content"
+        case createdAt = "created_at"
     }
 }

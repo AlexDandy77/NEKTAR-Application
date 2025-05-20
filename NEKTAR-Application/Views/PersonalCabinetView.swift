@@ -7,12 +7,11 @@ struct PersonalCabinetView: View {
     @State private var errorMessage: String? = nil
     @State private var showingJsonForItem: CabinetItem? = nil // For modal
 
-    let cabinetItemsURL = URL(string: "\(baseURLString)/api/cabinet")! // TODO Replace
+    let cabinetItemsURL = URL(string: "\(baseURLString)/api/snippets")!
 
     var body: some View {
         NavigationView {
             ZStack {
-                // Background Gradient
                 LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.6), Color.teal.opacity(0.6)]),
                                startPoint: .topLeading,
                                endPoint: .bottomTrailing)
@@ -58,78 +57,163 @@ struct PersonalCabinetView: View {
                         List {
                             ForEach(cabinetItems) { item in
                                 CabinetItemRow(item: item) {
-                                    // Action to show JSON, could be a modal or navigation
                                     self.showingJsonForItem = item
                                 }
-                                .listRowBackground(Color.white.opacity(0.6)) // Make rows slightly transparent
+                                .listRowBackground(Color.white.opacity(0.6))
                             }
+                            .onDelete(perform: deleteCabinetItem) // Add swipe-to-delete
                         }
-                        .listStyle(InsetGroupedListStyle()) // A modern list style
-                        .background(Color.clear) // Make list background clear to see gradient
-                        .onAppear { // Ensure list rows are styled correctly on appear
+                        .listStyle(InsetGroupedListStyle())
+                        .background(Color.clear)
+                        .onAppear {
                              UITableView.appearance().backgroundColor = .clear
                              UITableViewCell.appearance().backgroundColor = .clear
                         }
                     }
                 }
                 .navigationTitle("Personal Cabinet")
-                .navigationBarTitleDisplayMode(.inline) // Or .large
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        // Example: User profile icon
-                        Image(systemName: "person.crop.circle.fill")
-                            .foregroundColor(.white)
-                            .imageScale(.large)
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button {
-                            authService.logout()
-                        } label: {
-                            HStack {
-                                Text("Logout")
-                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                        // Profile Icon now opens a Menu
+                        Menu {
+                            Button(role: .destructive) { // Use .destructive role for logout
+                                authService.logout()
+                            } label: {
+                                Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
                             }
-                            .foregroundColor(.white)
+                            // Add other menu items here if needed in the future
+                        } label: {
+                            Image(systemName: "person.crop.circle.fill")
+                                .foregroundColor(.white)
+                                .imageScale(.large)
                         }
                     }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        EditButton() // For swipe-to-delete
+                            .foregroundColor(.white)
+                    }
+                    // REMOVED: The previous Logout button ToolbarItem
                 }
                 .onAppear {
                     fetchCabinetItems()
                 }
-                // Modal to display JSON
                 .sheet(item: $showingJsonForItem) { item in
                     JsonDetailView(jsonData: item.jsonData)
                 }
             }
-            // Set navigation bar appearance for this view
-            .toolbarBackground(Material.thin, for: .navigationBar) // Make nav bar transparent
-            .toolbarBackground(.visible, for: .navigationBar) // Ensure it's visible
-            .toolbarColorScheme(.dark, for: .navigationBar) // Ensure icons/text are white
+            .toolbarBackground(Material.thin, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
         }
     }
 
-    // MARK: - Fetch Cabinet Items (Mocked)
+    // MARK: - Fetch Cabinet Items (Actual Network Request)
     func fetchCabinetItems() {
         isLoading = true
         errorMessage = nil
 
-        // MOCK IMPLEMENTATION: Replace with actual network request
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { // Simulate network delay
-            // In a real app, you'd use URLSession here with the authToken in headers
-            // For example: request.setValue("Bearer \(authService.authToken ?? "")", forHTTPHeaderField: "Authorization")
-
-            // Example of successful mock data
-            self.cabinetItems = [
-                CabinetItem(title: "Important Document", description: "Contains critical project details.", jsonData: #"{"projectId": "Alpha123", "status": "active", "dueDate": "2025-12-31"}"#),
-                CabinetItem(title: "Vacation Photos", description: "Memories from the last trip.", jsonData: #"{"location": "Paris", "year": 2024, "album": ["eiffel_tower.jpg", "louvre.png"]}"#),
-                CabinetItem(title: "Recipe Book", description: "Collection of favorite recipes.", jsonData: #"{"category": "Desserts", "recipes": [{"name": "Chocolate Cake", "prepTime": "30 mins"}]}"#)
-            ]
+        guard let token = authService.authToken else {
+            errorMessage = "Authentication token not found. Please log in again."
             isLoading = false
-
-            // Example of error handling (uncomment to test)
-            // self.errorMessage = "Could not connect to the server."
-            // self.cabinetItems = []
-            // isLoading = false
+            return
         }
+
+        var request = URLRequest(url: cabinetItemsURL)
+        request.httpMethod = "GET"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                self.isLoading = false
+
+                if let error = error {
+                    self.errorMessage = "Network error: \(error.localizedDescription)"
+                    self.cabinetItems = []
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    self.errorMessage = "Invalid response from server."
+                    self.cabinetItems = []
+                    return
+                }
+
+                if httpResponse.statusCode == 200 {
+                    guard let data = data else {
+                        self.errorMessage = "No data received from server."
+                        self.cabinetItems = []
+                        return
+                    }
+                    do {
+                        let decodedItems = try JSONDecoder().decode([CabinetItem].self, from: data)
+                        self.cabinetItems = decodedItems
+                        self.errorMessage = nil
+                    } catch {
+                        print("Decoding error: \(error)")
+                        self.errorMessage = "Failed to decode cabinet items: \(error.localizedDescription)"
+                        self.cabinetItems = []
+                    }
+                } else if httpResponse.statusCode == 401 {
+                    self.errorMessage = "Session expired. Please log in again."
+                    authService.logout()
+                    self.cabinetItems = []
+                } else {
+                    let responseBody = data.map { String(data: $0, encoding: .utf8) ?? "" } ?? "No response body."
+                    self.errorMessage = "Server error \(httpResponse.statusCode): \(responseBody)"
+                    self.cabinetItems = []
+                }
+            }
+        }.resume()
+    }
+
+    // MARK: - Delete Cabinet Item
+    func deleteCabinetItem(at offsets: IndexSet) {
+        let itemsToDelete = offsets.map { cabinetItems[$0] }
+        cabinetItems.remove(atOffsets: offsets)
+
+        for item in itemsToDelete {
+            deleteItemFromServer(item: item)
+        }
+    }
+
+    private func deleteItemFromServer(item: CabinetItem) {
+        guard let token = authService.authToken else {
+            errorMessage = "Authentication token not found. Please log in again."
+            return
+        }
+
+        guard let deleteURL = URL(string: "\(baseURLString)/api/snippets/\(item.id)") else {
+            print("Invalid delete URL for item ID: \(item.id)")
+            return
+        }
+
+        var request = URLRequest(url: deleteURL)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error deleting item \(item.id): \(error.localizedDescription)")
+                    self.errorMessage = "Failed to delete '\(item.title)': \(error.localizedDescription)"
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    print("Invalid response for delete item \(item.id)")
+                    self.errorMessage = "Failed to delete '\(item.title)': Invalid server response."
+                    return
+                }
+
+                if httpResponse.statusCode == 200 || httpResponse.statusCode == 204 {
+                    print("Successfully deleted item \(item.id)")
+                } else {
+                    let responseBody = data.map { String(data: $0, encoding: .utf8) ?? "" } ?? "No response body."
+                    print("Server error deleting item \(item.id): \(httpResponse.statusCode) - \(responseBody)")
+                    self.errorMessage = "Failed to delete '\(item.title)': Server responded with \(httpResponse.statusCode)."
+                }
+            }
+        }.resume()
     }
 }
