@@ -7,7 +7,7 @@ struct PersonalCabinetView: View {
     @State private var errorMessage: String? = nil
     @State private var showingJsonForItem: CabinetItem? = nil // For modal
 
-    let cabinetItemsURL = URL(string: "\(baseURLString)/api/snippets")!
+    let cabinetItemsURL = URL(string: "\(baseURLString)/snippets")!
 
     var body: some View {
         NavigationView {
@@ -45,7 +45,7 @@ struct PersonalCabinetView: View {
                             Text("Your cabinet is empty.")
                                 .font(.title2)
                                 .foregroundColor(Color.black.opacity(0.8))
-                            Text("Items you add will appear here.")
+                            Text("Saved items will appear here.")
                                 .font(.subheadline)
                                 .foregroundColor(Color.black.opacity(0.7))
                                 .multilineTextAlignment(.center)
@@ -183,7 +183,7 @@ struct PersonalCabinetView: View {
             return
         }
 
-        guard let deleteURL = URL(string: "\(baseURLString)/api/snippets/\(item.id)") else {
+        guard let deleteURL = URL(string: "\(baseURLString)/snippets/\(item.id)") else {
             print("Invalid delete URL for item ID: \(item.id)")
             return
         }

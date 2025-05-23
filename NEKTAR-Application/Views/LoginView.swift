@@ -9,7 +9,7 @@ struct LoginView: View {
     @State private var showAlert = false
     @State private var isLoading = false
 
-    let loginURL = URL(string: "\(baseURLString)/api/auth/login")!
+    let loginURL = URL(string: "\(baseURLString)/auth/login")!
 
     var body: some View {
         NavigationView {

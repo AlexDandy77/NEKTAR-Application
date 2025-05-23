@@ -1,6 +1,6 @@
 import SwiftUI
 
-let baseURLString = "http://127.0.0.1:5000"
+let baseURLString = "http://ec2-56-228-42-67.eu-north-1.compute.amazonaws.com/api"
 
 @main
 struct NektarApplication: App {
