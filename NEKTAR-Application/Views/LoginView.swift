@@ -37,13 +37,21 @@ struct LoginView: View {
                     HStack {
                         Image(systemName: "envelope.fill")
                             .foregroundColor(.gray)
-                        TextField("Email", text: $email)
-                            .padding(12)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .textContentType(.emailAddress)
-                            .foregroundColor(.black) // Ensures text is black in both themes
-                            .accentColor(.black) // Ensures caret is black in both themes
+                        ZStack(alignment: .leading) {
+                            if email.isEmpty {
+                                Text("Email")
+                                    .foregroundColor(.gray)
+                                    .padding(12)
+                            }
+                            TextField("", text: $email)
+                                .padding(12)
+                                .keyboardType(.emailAddress)
+                                .autocapitalization(.none)
+                                .textContentType(.emailAddress)
+                                .foregroundColor(.black) // Ensures text is black in both themes
+                                .accentColor(.black) // Ensures caret is black in both themes
+                        }
+                        
                     }
                     .padding(EdgeInsets(top: 8, leading: 15, bottom: 8, trailing: 15))
                     .background(Color.white.opacity(0.9))
@@ -55,11 +63,19 @@ struct LoginView: View {
                     HStack {
                         Image(systemName: "lock.fill")
                             .foregroundColor(.gray)
-                        SecureField("Password", text: $password)
-                            .padding(12)
-                            .textContentType(.password)
-                            .foregroundColor(.black) // Ensures text is black in both themes
-                            .accentColor(.black) // Ensures caret is black in both themes
+                        ZStack(alignment: .leading) {
+                            if password.isEmpty {
+                                Text("Password")
+                                    .foregroundColor(.gray)
+                                    .padding(12)
+                            }
+                            SecureField("", text: $password)
+                                .padding(12)
+                                .textContentType(.password)
+                                .foregroundColor(.black) // Ensures text is black in both themes
+                                .accentColor(.black) // Ensures caret is black in both themes
+                        }
+                        
                     }
                     .padding(EdgeInsets(top: 8, leading: 15, bottom: 8, trailing: 15))
                     .background(Color.white.opacity(0.9))

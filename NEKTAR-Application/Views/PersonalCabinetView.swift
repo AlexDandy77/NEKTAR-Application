@@ -12,17 +12,19 @@ struct PersonalCabinetView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.6), Color.teal.opacity(0.6)]),
-                               startPoint: .topLeading,
-                               endPoint: .bottomTrailing)
-                    .ignoresSafeArea()
-
                 VStack {
                     if isLoading {
-                        ProgressView("Loading Cabinet...")
-                            .progressViewStyle(CircularProgressViewStyle(tint: .primary))
-                            .foregroundColor(.white)
-                            .padding()
+                        ZStack {
+                            LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.6), Color.teal.opacity(0.6)]),
+                                           startPoint: .topLeading,
+                                           endPoint: .bottomTrailing)
+                                .ignoresSafeArea()
+
+                            ProgressView("Loading Cabinet...")
+                                .progressViewStyle(CircularProgressViewStyle(tint: .primary))
+                                .foregroundColor(.white)
+                                .padding()
+                        }
                     } else if let errorMsg = errorMessage {
                         Text("Error: \(errorMsg)")
                             .foregroundColor(.red)
@@ -35,24 +37,29 @@ struct PersonalCabinetView: View {
                         .background(Color.orange)
                         .cornerRadius(10)
                     } else if cabinetItems.isEmpty {
-                         VStack {
-                            Image(systemName: "tray.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 80, height: 80)
-                                .foregroundColor(Color.black.opacity(0.6))
-                                .padding(.bottom, 20)
-                            Text("Your cabinet is empty.")
-                                .font(.title2)
-                                .foregroundColor(Color.black.opacity(0.8))
-                            Text("Saved items will appear here.")
-                                .font(.subheadline)
-                                .foregroundColor(Color.black.opacity(0.7))
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
+                        ZStack{
+                            LinearGradient(gradient: Gradient(colors: [Color.green.opacity(0.6), Color.teal.opacity(0.6)]),
+                                           startPoint: .topLeading,
+                                           endPoint: .bottomTrailing)
+                                .ignoresSafeArea()
+                            VStack {
+                                Image(systemName: "tray.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 80, height: 80)
+                                    .foregroundColor(Color.black.opacity(0.6))
+                                    .padding(.bottom, 20)
+                                Text("Your cabinet is empty.")
+                                    .font(.title2)
+                                    .foregroundColor(Color.black.opacity(0.8))
+                                Text("Saved items will appear here.")
+                                    .font(.subheadline)
+                                    .foregroundColor(Color.black.opacity(0.7))
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                            }
+                            .padding()
                         }
-                        .padding()
-
                     } else {
                         List {
                             ForEach(cabinetItems) { item in
@@ -61,28 +68,21 @@ struct PersonalCabinetView: View {
                                 }
                                 .listRowBackground(Color.white.opacity(0.6))
                             }
-                            .onDelete(perform: deleteCabinetItem) // Add swipe-to-delete
+                            .onDelete(perform: deleteCabinetItem)
                         }
                         .listStyle(InsetGroupedListStyle())
-                        .background(Color.clear)
-                        .onAppear {
-                             UITableView.appearance().backgroundColor = .clear
-                             UITableViewCell.appearance().backgroundColor = .clear
-                        }
                     }
                 }
                 .navigationTitle("Personal Cabinet")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        // Profile Icon now opens a Menu
                         Menu {
-                            Button(role: .destructive) { // Use .destructive role for logout
+                            Button(role: .destructive) {
                                 authService.logout()
                             } label: {
                                 Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
                             }
-                            // Add other menu items here if needed in the future
                         } label: {
                             Image(systemName: "person.crop.circle.fill")
                                 .foregroundColor(.white)
@@ -90,10 +90,9 @@ struct PersonalCabinetView: View {
                         }
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        EditButton() // For swipe-to-delete
+                        EditButton()
                             .foregroundColor(.white)
                     }
-                    // REMOVED: The previous Logout button ToolbarItem
                 }
                 .onAppear {
                     fetchCabinetItems()
