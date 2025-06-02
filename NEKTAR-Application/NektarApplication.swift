@@ -9,7 +9,7 @@ struct NektarApplication: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(authService) // Provide authService to the environment
+                .environmentObject(authService)
         }
     }
 }

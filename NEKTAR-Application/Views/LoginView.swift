@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LoginView: View {
-    @EnvironmentObject var authService: AuthenticationService // Access the auth service
+    @EnvironmentObject var authService: AuthenticationService
 
     @State private var email = ""
     @State private var password = ""
@@ -14,14 +14,12 @@ struct LoginView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background Gradient
                 LinearGradient(gradient: Gradient(colors: [Color.blue.opacity(0.7), Color.purple.opacity(0.7)]),
                                startPoint: .topLeading,
                                endPoint: .bottomTrailing)
                     .ignoresSafeArea()
 
                 VStack(spacing: 25) {
-                    // App Icon (Placeholder)
                     Image(systemName: "lock.shield.fill")
                         .resizable()
                         .scaledToFit()
@@ -33,7 +31,6 @@ struct LoginView: View {
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
 
-                    // Email Input
                     HStack {
                         Image(systemName: "envelope.fill")
                             .foregroundColor(.gray)
@@ -48,8 +45,8 @@ struct LoginView: View {
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
                                 .textContentType(.emailAddress)
-                                .foregroundColor(.black) // Ensures text is black in both themes
-                                .accentColor(.black) // Ensures caret is black in both themes
+                                .foregroundColor(.black)
+                                .accentColor(.black)
                         }
                         
                     }
@@ -59,7 +56,6 @@ struct LoginView: View {
                     .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
 
 
-                    // Password Input
                     HStack {
                         Image(systemName: "lock.fill")
                             .foregroundColor(.gray)
@@ -72,8 +68,8 @@ struct LoginView: View {
                             SecureField("", text: $password)
                                 .padding(12)
                                 .textContentType(.password)
-                                .foregroundColor(.black) // Ensures text is black in both themes
-                                .accentColor(.black) // Ensures caret is black in both themes
+                                .foregroundColor(.black)
+                                .accentColor(.black)
                         }
                         
                     }
@@ -83,7 +79,6 @@ struct LoginView: View {
                     .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
 
 
-                    // Login Button
                     Button(action: loginUser) {
                         HStack {
                             if isLoading {
@@ -110,14 +105,14 @@ struct LoginView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 30)
-                .padding(.top, 50) // Adjust top padding
+                .padding(.top, 50)
             }
-            .navigationBarHidden(true) // Hide navigation bar for a cleaner look
+            .navigationBarHidden(true)
             .alert(isPresented: $showAlert) {
                 Alert(title: Text("Login Status"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
             }
         }
-        .accentColor(.white) // For back button if navigation bar was visible
+        .accentColor(.white)
     }
 
     func loginUser() {
@@ -156,7 +151,6 @@ struct LoginView: View {
                 if httpResponse.statusCode == 200 {
                     do {
                         let decodedResponse = try JSONDecoder().decode(LoginSuccessResponse.self, from: data)
-                        // On successful login, update the authService
                         authService.login(token: decodedResponse.access_token)
                     } catch {
                         self.handleLoginError(message: "Successfully logged in, but failed to parse token.")
@@ -164,7 +158,7 @@ struct LoginView: View {
                 } else if httpResponse.statusCode == 401 {
                     do {
                         let errorResponse = try JSONDecoder().decode(LoginErrorResponse.self, from: data)
-                        self.handleLoginError(message: errorResponse.msg) // "Bad credentials"
+                        self.handleLoginError(message: errorResponse.msg)
                     } catch {
                         self.handleLoginError(message: "Bad credentials (unable to parse error details).")
                     }

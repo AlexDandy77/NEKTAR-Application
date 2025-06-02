@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CabinetItemRow: View {
     let item: CabinetItem
-    let onShowJson: () -> Void // Callback to show JSON
+    let onShowJson: () -> Void
 
     var body: some View {
         HStack {
@@ -13,13 +13,13 @@ struct CabinetItemRow: View {
                 Text("Created: \(item.createdAt)")
                     .font(.subheadline)
                     .foregroundColor(Color.black.opacity(0.7))
-                    .lineLimit(1) // Changed to 1 line if showing date
+                    .lineLimit(1)
             }
             Spacer()
             Button {
                 onShowJson()
             } label: {
-                Image(systemName: "doc.text.magnifyingglass")
+                Image(systemName: "arkit")
                     .foregroundColor(.blue.opacity(0.8))
                     .imageScale(.large)
             }

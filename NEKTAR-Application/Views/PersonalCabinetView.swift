@@ -5,7 +5,7 @@ struct PersonalCabinetView: View {
     @State private var cabinetItems: [CabinetItem] = []
     @State private var isLoading = false
     @State private var errorMessage: String? = nil
-    @State private var showingJsonForItem: CabinetItem? = nil // For modal
+    @State private var itemForARVisualization: CabinetItem? = nil
 
     let cabinetItemsURL = URL(string: "\(baseURLString)/snippets")!
 
@@ -64,13 +64,16 @@ struct PersonalCabinetView: View {
                         List {
                             ForEach(cabinetItems) { item in
                                 CabinetItemRow(item: item) {
-                                    self.showingJsonForItem = item
+                                    self.itemForARVisualization = item
                                 }
                                 .listRowBackground(Color.white.opacity(0.6))
                             }
                             .onDelete(perform: deleteCabinetItem)
                         }
                         .listStyle(InsetGroupedListStyle())
+                        .refreshable {
+                            fetchCabinetItems()
+                        }
                     }
                 }
                 .navigationTitle("Personal Cabinet")
@@ -97,8 +100,10 @@ struct PersonalCabinetView: View {
                 .onAppear {
                     fetchCabinetItems()
                 }
-                .sheet(item: $showingJsonForItem) { item in
-                    JsonDetailView(jsonData: item.jsonData)
+                .sheet(item: $itemForARVisualization) { item in
+                    NavigationView {
+                        ARNetworkVisualizationView(jsonDataString: item.jsonData)
+                    }
                 }
             }
             .toolbarBackground(Material.thin, for: .navigationBar)
