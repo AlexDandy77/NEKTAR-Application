@@ -3,7 +3,6 @@ import RealityKit
 import ARKit
 
 // MARK: - Data Structures for JSON Parsing
-
 struct NetworkTopologyContainer: Codable {
     let dsl: String
     let reactFlow: ReactFlowData
@@ -19,13 +18,12 @@ struct ReactFlowData: Codable {
     let nodes: [NodeData]
 }
 
-struct NodeData: Codable, Identifiable { // Identifiable by its own 'id'
+struct NodeData: Codable, Identifiable {
     let id: String
     let data: NodeInfo
     let position: NodePosition
 }
 
-// MARK: - NodeInfo: Corrected for JSON Decoding
 struct NodeInfo: Codable, Identifiable {
     let id: String
     let label: String
@@ -35,16 +33,12 @@ struct NodeInfo: Codable, Identifiable {
     let power_on: Bool?
     let src: String?
 
-    // CodingKeys to map JSON keys *within the "data" object* to struct properties.
-    // 'id' is explicitly excluded here because it's not present in the 'data' JSON.
     enum CodingKeys: String, CodingKey {
         case label
-        case deviceType = "type" // Maps "type" within JSON "data" to "deviceType"
+        case deviceType = "type"
         case coordinates, interface, power_on, src
     }
 
-    // Custom initializer for Codable conformance. This is what JSONDecoder uses
-    // when it encounters the 'data' object in your JSON.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.label = try container.decode(String.self, forKey: .label)
@@ -53,15 +47,10 @@ struct NodeInfo: Codable, Identifiable {
         self.interface = try container.decodeIfPresent(InterfaceData.self, forKey: .interface)
         self.power_on = try container.decodeIfPresent(Bool.self, forKey: .power_on)
         self.src = try container.decodeIfPresent(String.self, forKey: .src)
-        
-        // Provide a temporary ID for Identifiable conformance.
-        // This 'id' will be overwritten with the actual NodeData.id when
-        // NodeInfo instances are created for the nodeInfoMap.
-        self.id = UUID().uuidString
+        self.id = UUID().uuidString // Generate a new ID if not present in JSON
     }
     
-    // Convenience initializer to create NodeInfo with a specific ID (from NodeData.id).
-    // This is used when populating the nodeInfoMap in the Coordinator.
+    // Explicit initializer for creating NodeInfo manually (e.g., for nodeInfoMap)
     init(id: String, label: String, deviceType: String, coordinates: String?, interface: InterfaceData?, power_on: Bool?, src: String?) {
         self.id = id
         self.label = label
@@ -83,12 +72,11 @@ struct NodePosition: Codable {
     let y: Double
 }
 
-struct EdgeData: Codable, Identifiable { // Identifiable by its own 'id'
+struct EdgeData: Codable, Identifiable {
     let id: String
-    let source: String // Node ID
-    let target: String // Node ID
+    let source: String
+    let target: String
 }
-
 
 // MARK: - AR Visualization View
 struct ARNetworkVisualizationView: View {
@@ -97,10 +85,7 @@ struct ARNetworkVisualizationView: View {
     @State private var errorMessage: String? = nil
     @Environment(\.presentationMode) var presentationMode
 
-    // State to hold the details of the tapped node for modal presentation
     @State private var selectedNodeInfo: NodeInfo? = nil
-    
-    // State to trigger AR session reset
     @State private var resetARTrigger: Bool = false
 
     var body: some View {
@@ -108,7 +93,7 @@ struct ARNetworkVisualizationView: View {
             if let topology = networkTopology {
                 ARDisplayView(topology: topology.reactFlow,
                               selectedNodeInfo: $selectedNodeInfo,
-                              resetARTrigger: $resetARTrigger) // Pass the binding
+                              resetARTrigger: $resetARTrigger)
                     .edgesIgnoringSafeArea(.all)
             } else if let errorMsg = errorMessage {
                 VStack {
@@ -129,13 +114,13 @@ struct ARNetworkVisualizationView: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack {
                     Button("Reset AR") {
-                        resetARTrigger.toggle() // Toggle to trigger AR reset
+                        resetARTrigger.toggle()
                     }
                     Button("Done") { presentationMode.wrappedValue.dismiss() }
                 }
             }
         }
-        .sheet(item: $selectedNodeInfo) { details in // 'item' requires NodeInfo to be Identifiable
+        .sheet(item: $selectedNodeInfo) { details in
             NavigationView {
                 NodeDetailView(details: details)
             }
@@ -161,7 +146,7 @@ struct ARNetworkVisualizationView: View {
 struct ARDisplayView: UIViewRepresentable {
     let topology: ReactFlowData
     @Binding var selectedNodeInfo: NodeInfo?
-    @Binding var resetARTrigger: Bool // Binding to trigger AR reset
+    @Binding var resetARTrigger: Bool
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self, selectedNodeInfo: $selectedNodeInfo, topology: topology)
@@ -170,23 +155,18 @@ struct ARDisplayView: UIViewRepresentable {
     func makeUIView(context: Context) -> ARView {
         let arView = ARView(frame: .zero)
         context.coordinator.arView = arView
-
-        // Set the ARSessionDelegate
         arView.session.delegate = context.coordinator
 
-        // Configure AR session for plane detection
         let config = ARWorldTrackingConfiguration()
-        config.planeDetection = [.horizontal] // Detect horizontal planes
+        config.planeDetection = [.horizontal]
         arView.session.run(config)
 
-        // Add coaching overlay for user guidance
         let coachingOverlay = ARCoachingOverlayView()
         coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         coachingOverlay.session = arView.session
-        coachingOverlay.goal = .horizontalPlane // Guide user to find a horizontal plane
+        coachingOverlay.goal = .horizontalPlane
         arView.addSubview(coachingOverlay)
         
-        // Add a tap gesture recognizer for node interaction
         let tapGesture = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
         arView.addGestureRecognizer(tapGesture)
         
@@ -194,45 +174,66 @@ struct ARDisplayView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: ARView, context: Context) {
-        // Observe changes to resetARTrigger to reset the AR session
         if resetARTrigger {
             context.coordinator.resetARSession()
-            // Reset the trigger immediately after handling it
             DispatchQueue.main.async {
                 resetARTrigger = false
             }
         }
-        // Topology is static once loaded, so no complex updates needed here.
     }
     
-    // Helper function to create a line entity (moved here for better organization)
+    // This function creates a cylinder entity representing a line
+    // Added safety checks for distance and thickness
     func createLineEntity(from startPoint: SIMD3<Float>, to endPoint: SIMD3<Float>, thickness: Float, material: SimpleMaterial) -> ModelEntity {
         let distance = simd_distance(startPoint, endPoint)
+
+        // Safety check: ensure distance and thickness are positive and reasonable
+        guard distance > 0.0001 else { // Use a small epsilon to account for floating point inaccuracies
+            print("Warning: Line distance is too small or zero (\(distance)). Skipping line creation for points \(startPoint) to \(endPoint).")
+            return ModelEntity() // Return an empty model to prevent crash, line won't be visible
+        }
+        
+        guard thickness > 0 else {
+            print("Warning: Line thickness is zero or negative (\(thickness)). Skipping line creation.")
+            return ModelEntity() // Return an empty model
+        }
+
         let cylinderMesh = MeshResource.generateCylinder(height: distance, radius: thickness / 2)
         let lineEntity = ModelEntity(mesh: cylinderMesh, materials: [material])
         lineEntity.position = (startPoint + endPoint) / 2
+        
+        // Calculate rotation to align cylinder between start and end points
         let direction = normalize(endPoint - startPoint)
-        let upVector: SIMD3<Float> = [0, 1, 0]
+        let upVector: SIMD3<Float> = [0, 1, 0] // Default cylinder axis is Y-up
+        
+        // Handle edge case where line is perfectly vertical
         if abs(abs(dot(direction, upVector)) - 1.0) < 0.001 {
-            if direction.y < 0 { lineEntity.transform.rotation = simd_quatf(angle: .pi, axis: [1, 0, 0]) }
+            // Line is vertical (or very close to it)
+            if direction.y < 0 {
+                // Pointing down, rotate 180 degrees around X to flip
+                lineEntity.transform.rotation = simd_quatf(angle: .pi, axis: [1, 0, 0])
+            }
+            // If direction.y > 0, no rotation needed (already aligned with upVector)
         } else {
+            // Line is not vertical, calculate rotation axis and angle
             let rotationAxis = normalize(cross(upVector, direction))
             let rotationAngle = acos(dot(upVector, direction))
             lineEntity.transform.rotation = simd_quatf(angle: rotationAngle, axis: rotationAxis)
         }
+        
         return lineEntity
     }
 
+    // MARK: - Coordinator (UPDATED)
     class Coordinator: NSObject, ARSessionDelegate {
         var parent: ARDisplayView
         var arView: ARView?
-        var networkTopology: ReactFlowData // Store topology here for access in delegate methods
+        var networkTopology: ReactFlowData
         var nodeInfoMap: [String: NodeInfo] = [:]
         @Binding var selectedNodeInfo: NodeInfo?
         
-        // Anchor for placing the entire network visualization
         var placementAnchor: AnchorEntity?
-        var contentPlaced: Bool = false // Flag to ensure content is placed only once per session/plane
+        var contentPlaced: Bool = false
 
         init(_ parent: ARDisplayView, selectedNodeInfo: Binding<NodeInfo?>, topology: ReactFlowData) {
             self.parent = parent
@@ -240,125 +241,137 @@ struct ARDisplayView: UIViewRepresentable {
             self.networkTopology = topology
         }
         
-        // MARK: - ARSessionDelegate
+        // MARK: - ARSessionDelegate (UPDATED)
         func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-            // Check if a horizontal plane anchor was added and content hasn't been placed yet
+            // Only place content once a horizontal plane is detected
             guard !contentPlaced else { return }
 
             for anchor in anchors {
                 if let planeAnchor = anchor as? ARPlaneAnchor, planeAnchor.alignment == .horizontal {
-                    // Create an AnchorEntity at the detected plane's transform
                     let newPlacementAnchor = AnchorEntity(anchor: planeAnchor)
                     arView?.scene.addAnchor(newPlacementAnchor)
                     self.placementAnchor = newPlacementAnchor
                     
-                    // Place the network content on this detected plane
-                    placeNetworkContent()
-                    contentPlaced = true // Set flag to true after placement
-                    break // Only place content on the first detected horizontal plane
+                    // Bridge from synchronous delegate to an asynchronous context to place content
+                    Task { @MainActor in // Ensure RealityKit operations are on the main actor
+                        await self.placeNetworkContent()
+                    }
+                    
+                    contentPlaced = true
+                    break // Only use the first detected plane
                 }
             }
         }
         
-        // MARK: - Network Content Placement
-        private func placeNetworkContent() {
-            guard let arView = arView, let anchor = placementAnchor else { return }
+        // MARK: - Network Content Placement (UPDATED for async/await)
+        @MainActor // Mark as MainActor to ensure RealityKit operations run on the main thread
+        private func placeNetworkContent() async {
+            guard let anchor = placementAnchor else { return }
 
-            // Clear any existing network models before placing new ones
+            // Clear existing content to avoid duplicates on re-placement
             anchor.children.removeAll()
             nodeInfoMap.removeAll()
 
-            let nodeBaseSize: Float = 0.05
-            let positionScaleFactor: Float = 0.0025 // Adjusted for potentially better initial scaling
-            let linkThickness: Float = 0.004
-            let verticalOffset: Float = 0.05 // Slightly lower offset if on a desk
-
+            let positionScaleFactor: Float = 0.0025 // Adjust as needed for AR scale
+            let linkThickness: Float = 0.004 // Thickness of the connecting lines
+            let verticalOffset: Float = 0.05 // Vertical offset for nodes above the plane
             var nodeEntities: [String: Entity] = [:]
 
-            for nodeData in networkTopology.nodes {
-                let deviceClassType = nodeData.data.deviceType.lowercased()
-                var nodeEntity: ModelEntity
-
-                switch deviceClassType {
-                    case "pc":
-                        nodeEntity = ModelEntity(mesh: .generateSphere(radius: nodeBaseSize / 2), materials: [SimpleMaterial(color: .systemBlue, isMetallic: false)])
-                    case "laptop":
-                        nodeEntity = ModelEntity(mesh: .generateSphere(radius: nodeBaseSize / 2 * 0.9), materials: [SimpleMaterial(color: .systemGreen, isMetallic: false)])
-                    case "server":
-                        nodeEntity = ModelEntity(mesh: .generateBox(size: nodeBaseSize), materials: [SimpleMaterial(color: .systemOrange, isMetallic: false)])
-                    case "switch":
-                        nodeEntity = ModelEntity(mesh: .generateBox(width: nodeBaseSize * 1.5, height: nodeBaseSize * 0.5, depth: nodeBaseSize * 0.8), materials: [SimpleMaterial(color: .systemPurple, isMetallic: false)])
-                    case "router":
-                        nodeEntity = ModelEntity(mesh: .generateCylinder(height: nodeBaseSize * 0.7, radius: nodeBaseSize * 0.4), materials: [SimpleMaterial(color: .systemRed, isMetallic: false)])
-                    default:
-                        nodeEntity = ModelEntity(mesh: .generateSphere(radius: nodeBaseSize / 2 * 0.7), materials: [SimpleMaterial(color: .systemGray, isMetallic: false)])
+            await withTaskGroup(of: (id: String, model: ModelEntity?).self) { group in
+                // Phase 1: Concurrently load all models
+                for nodeData in networkTopology.nodes {
+                    group.addTask {
+                        let modelName = "\(nodeData.data.deviceType.lowercased()).usdz"
+                        do {
+                            // Use the new async initializer for ModelEntity
+                            let model = try await ModelEntity(named: modelName)
+                            return (nodeData.id, model)
+                        } catch {
+                            // If specific model fails, try loading the fallback model
+                            do {
+                                let fallbackModel = try await ModelEntity(named: "default.usdz")
+                                return (nodeData.id, fallbackModel)
+                            } catch {
+                                print("Error: Failed to load model '\(modelName)' and fallback 'default.usdz'. \(error)")
+                                return (nodeData.id, nil) // Return nil if both fail
+                            }
+                        }
+                    }
                 }
                 
-                // Position relative to the detected plane anchor
-                let posX = Float(nodeData.position.x) * positionScaleFactor
-                let posZ = Float(nodeData.position.y) * positionScaleFactor
-                nodeEntity.position = [posX, verticalOffset, posZ] // Y is vertical offset from the plane
-                
-                nodeEntity.name = nodeData.id
-                nodeEntity.generateCollisionShapes(recursive: true) // Enable tap detection
-
-                anchor.addChild(nodeEntity)
-                nodeEntities[nodeData.id] = nodeEntity
-                
-                // Construct NodeInfo for the map, including the 'id' from NodeData for Identifiable conformance
-                let nodeSpecificInfo = NodeInfo(id: nodeData.id, // Use NodeData.id for Identifiable
-                                                label: nodeData.data.label,
-                                                deviceType: nodeData.data.deviceType,
-                                                coordinates: nodeData.data.coordinates,
-                                                interface: nodeData.data.interface,
-                                                power_on: nodeData.data.power_on,
-                                                src: nodeData.data.src)
-                nodeInfoMap[nodeData.id] = nodeSpecificInfo
+                // Phase 2: Collect and configure loaded models, add them to the scene
+                for await result in group {
+                    guard let loadedEntity = result.model else { continue }
+                    
+                    // Find the original nodeData for this result to get its position
+                    guard let nodeData = networkTopology.nodes.first(where: { $0.id == result.id }) else { continue }
+                    
+                    // Configure the entity's position, scale, and name
+                    let posX = Float(nodeData.position.x) * positionScaleFactor
+                    let posZ = Float(nodeData.position.y) * positionScaleFactor
+                    loadedEntity.position = [posX, verticalOffset, posZ]
+                    loadedEntity.scale = [0.1, 0.1, 0.1] // Adjust scale as needed for visual size
+                    loadedEntity.name = nodeData.id // Set name for tap detection
+                    
+                    // Generate collision shapes for tap detection
+                    await loadedEntity.generateCollisionShapes(recursive: true)
+                    
+                    // Add the configured entity to the AR scene's anchor
+                    anchor.addChild(loadedEntity)
+                    nodeEntities[result.id] = loadedEntity // Store for line drawing
+                    
+                    // Populate nodeInfoMap for detail view
+                    let nodeSpecificInfo = NodeInfo(id: nodeData.id, label: nodeData.data.label, deviceType: nodeData.data.deviceType, coordinates: nodeData.data.coordinates, interface: nodeData.data.interface, power_on: nodeData.data.power_on, src: nodeData.data.src)
+                    self.nodeInfoMap[result.id] = nodeSpecificInfo
+                }
             }
-
+            
+            // Phase 3: Draw connecting lines between placed nodes (runs after all models are loaded and placed)
             for linkData in networkTopology.edges {
                 guard let sourceEntity = nodeEntities[linkData.source],
                       let targetEntity = nodeEntities[linkData.target] else {
+                    print("Warning: Could not find source or target entity for edge \(linkData.id).")
                     continue
                 }
+                
+                // The problematic line from your screenshot
                 let lineMaterial = SimpleMaterial(color: .gray.withAlphaComponent(0.6), isMetallic: false)
-                // Positions are already relative to the anchor, so no need for relativeTo: anchor again
-                let lineEntity = parent.createLineEntity(from: sourceEntity.position,
-                                                         to: targetEntity.position,
-                                                         thickness: linkThickness,
-                                                         material: lineMaterial)
-                anchor.addChild(lineEntity)
+                
+                let lineEntity = parent.createLineEntity(from: sourceEntity.position, to: targetEntity.position, thickness: linkThickness, material: lineMaterial)
+                
+                // Only add the line if it's not an empty ModelEntity from the guard in createLineEntity
+                if !lineEntity.children.isEmpty || lineEntity.components.has(ModelComponent.self) {
+                    anchor.addChild(lineEntity)
+                }
             }
         }
         
-        // MARK: - AR Session Reset
         func resetARSession() {
             guard let arView = arView else { return }
             
-            // Remove all existing anchors and content
+            // Clear all anchors from the scene
             arView.scene.anchors.removeAll()
             placementAnchor = nil
             contentPlaced = false
-            nodeInfoMap.removeAll() // Clear map as content is removed
+            nodeInfoMap.removeAll()
 
-            // Re-run the AR session with plane detection
+            // Re-run the AR session with reset options
             let config = ARWorldTrackingConfiguration()
             config.planeDetection = [.horizontal]
             arView.session.run(config, options: [.resetTracking, .removeExistingAnchors])
         }
 
-        // MARK: - Tap Gesture Handling
         @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
             guard let arView = arView else { return }
             let tapLocation = recognizer.location(in: arView)
             
-            // Perform a raycast to find entities at the tap location
+            // Perform a hit test to find entities at the tap location
             if let tappedEntity = arView.entity(at: tapLocation) {
                 var currentEntity: Entity? = tappedEntity
-                // Traverse up the hierarchy to find the main node entity
+                // Traverse up the entity hierarchy to find the root entity with a name (node ID)
                 while currentEntity != nil {
                     if let entityName = currentEntity?.name, let details = nodeInfoMap[entityName] {
-                        self.selectedNodeInfo = details
+                        self.selectedNodeInfo = details // Set the selected node to show details sheet
                         return
                     }
                     currentEntity = currentEntity?.parent
@@ -416,7 +429,7 @@ struct NodeDetailView: View {
             .cornerRadius(10)
         }
         .padding()
-        .navigationBarHidden(true) // Hide the default navigation bar for the sheet
+        .navigationBarHidden(true) // Hide the navigation bar for the sheet content
     }
     
     private func detailRow(label: String, value: String) -> some View {

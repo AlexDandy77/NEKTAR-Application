@@ -24,18 +24,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3B27A6302DC23932009A5CBD /* NEKTAR-Application.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NEKTAR-Application.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B27A6402DC23937009A5CBD /* NEKTAR-ApplicationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NEKTAR-ApplicationTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B27A64A2DC23937009A5CBD /* NEKTAR-ApplicationUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NEKTAR-ApplicationUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B27A6302DC23932009A5CBD /* Nektar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nektar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B27A6402DC23937009A5CBD /* NektarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NektarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B27A64A2DC23937009A5CBD /* NektarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NektarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		3BD7E23C2DDB8430002BFCE8 /* Exceptions for "NEKTAR-Application" folder in "NEKTAR-Application" target */ = {
+		3BD7E23C2DDB8430002BFCE8 /* Exceptions for "NEKTAR-Application" folder in "Nektar" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 3B27A62F2DC23932009A5CBD /* NEKTAR-Application */;
+			target = 3B27A62F2DC23932009A5CBD /* Nektar */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -43,7 +43,7 @@
 		3B27A6322DC23932009A5CBD /* NEKTAR-Application */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				3BD7E23C2DDB8430002BFCE8 /* Exceptions for "NEKTAR-Application" folder in "NEKTAR-Application" target */,
+				3BD7E23C2DDB8430002BFCE8 /* Exceptions for "NEKTAR-Application" folder in "Nektar" target */,
 			);
 			path = "NEKTAR-Application";
 			sourceTree = "<group>";
@@ -98,9 +98,9 @@
 		3B27A6312DC23932009A5CBD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3B27A6302DC23932009A5CBD /* NEKTAR-Application.app */,
-				3B27A6402DC23937009A5CBD /* NEKTAR-ApplicationTests.xctest */,
-				3B27A64A2DC23937009A5CBD /* NEKTAR-ApplicationUITests.xctest */,
+				3B27A6302DC23932009A5CBD /* Nektar.app */,
+				3B27A6402DC23937009A5CBD /* NektarTests.xctest */,
+				3B27A64A2DC23937009A5CBD /* NektarUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,9 +108,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		3B27A62F2DC23932009A5CBD /* NEKTAR-Application */ = {
+		3B27A62F2DC23932009A5CBD /* Nektar */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3B27A6542DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NEKTAR-Application" */;
+			buildConfigurationList = 3B27A6542DC23937009A5CBD /* Build configuration list for PBXNativeTarget "Nektar" */;
 			buildPhases = (
 				3B27A62C2DC23932009A5CBD /* Sources */,
 				3B27A62D2DC23932009A5CBD /* Frameworks */,
@@ -123,16 +123,16 @@
 			fileSystemSynchronizedGroups = (
 				3B27A6322DC23932009A5CBD /* NEKTAR-Application */,
 			);
-			name = "NEKTAR-Application";
+			name = Nektar;
 			packageProductDependencies = (
 			);
 			productName = "NEKTAR-Application";
-			productReference = 3B27A6302DC23932009A5CBD /* NEKTAR-Application.app */;
+			productReference = 3B27A6302DC23932009A5CBD /* Nektar.app */;
 			productType = "com.apple.product-type.application";
 		};
-		3B27A63F2DC23937009A5CBD /* NEKTAR-ApplicationTests */ = {
+		3B27A63F2DC23937009A5CBD /* NektarTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3B27A6572DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NEKTAR-ApplicationTests" */;
+			buildConfigurationList = 3B27A6572DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NektarTests" */;
 			buildPhases = (
 				3B27A63C2DC23937009A5CBD /* Sources */,
 				3B27A63D2DC23937009A5CBD /* Frameworks */,
@@ -146,16 +146,16 @@
 			fileSystemSynchronizedGroups = (
 				3B27A6432DC23937009A5CBD /* NEKTAR-ApplicationTests */,
 			);
-			name = "NEKTAR-ApplicationTests";
+			name = NektarTests;
 			packageProductDependencies = (
 			);
 			productName = "NEKTAR-ApplicationTests";
-			productReference = 3B27A6402DC23937009A5CBD /* NEKTAR-ApplicationTests.xctest */;
+			productReference = 3B27A6402DC23937009A5CBD /* NektarTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		3B27A6492DC23937009A5CBD /* NEKTAR-ApplicationUITests */ = {
+		3B27A6492DC23937009A5CBD /* NektarUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3B27A65A2DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NEKTAR-ApplicationUITests" */;
+			buildConfigurationList = 3B27A65A2DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NektarUITests" */;
 			buildPhases = (
 				3B27A6462DC23937009A5CBD /* Sources */,
 				3B27A6472DC23937009A5CBD /* Frameworks */,
@@ -169,11 +169,11 @@
 			fileSystemSynchronizedGroups = (
 				3B27A64D2DC23937009A5CBD /* NEKTAR-ApplicationUITests */,
 			);
-			name = "NEKTAR-ApplicationUITests";
+			name = NektarUITests;
 			packageProductDependencies = (
 			);
 			productName = "NEKTAR-ApplicationUITests";
-			productReference = 3B27A64A2DC23937009A5CBD /* NEKTAR-ApplicationUITests.xctest */;
+			productReference = 3B27A64A2DC23937009A5CBD /* NektarUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -199,7 +199,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 3B27A62B2DC23932009A5CBD /* Build configuration list for PBXProject "NEKTAR-Application" */;
+			buildConfigurationList = 3B27A62B2DC23932009A5CBD /* Build configuration list for PBXProject "Nektar" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -213,9 +213,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				3B27A62F2DC23932009A5CBD /* NEKTAR-Application */,
-				3B27A63F2DC23937009A5CBD /* NEKTAR-ApplicationTests */,
-				3B27A6492DC23937009A5CBD /* NEKTAR-ApplicationUITests */,
+				3B27A62F2DC23932009A5CBD /* Nektar */,
+				3B27A63F2DC23937009A5CBD /* NektarTests */,
+				3B27A6492DC23937009A5CBD /* NektarUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -271,12 +271,12 @@
 /* Begin PBXTargetDependency section */
 		3B27A6422DC23937009A5CBD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3B27A62F2DC23932009A5CBD /* NEKTAR-Application */;
+			target = 3B27A62F2DC23932009A5CBD /* Nektar */;
 			targetProxy = 3B27A6412DC23937009A5CBD /* PBXContainerItemProxy */;
 		};
 		3B27A64C2DC23937009A5CBD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 3B27A62F2DC23932009A5CBD /* NEKTAR-Application */;
+			target = 3B27A62F2DC23932009A5CBD /* Nektar */;
 			targetProxy = 3B27A64B2DC23937009A5CBD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -342,6 +342,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -397,6 +398,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -476,7 +478,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NEKTAR-Application.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NEKTAR-Application";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Nektar.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Nektar";
 			};
 			name = Debug;
 		};
@@ -495,7 +497,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NEKTAR-Application.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/NEKTAR-Application";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Nektar.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Nektar";
 			};
 			name = Release;
 		};
@@ -536,7 +538,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3B27A62B2DC23932009A5CBD /* Build configuration list for PBXProject "NEKTAR-Application" */ = {
+		3B27A62B2DC23932009A5CBD /* Build configuration list for PBXProject "Nektar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3B27A6522DC23937009A5CBD /* Debug */,
@@ -545,7 +547,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3B27A6542DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NEKTAR-Application" */ = {
+		3B27A6542DC23937009A5CBD /* Build configuration list for PBXNativeTarget "Nektar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3B27A6552DC23937009A5CBD /* Debug */,
@@ -554,7 +556,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3B27A6572DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NEKTAR-ApplicationTests" */ = {
+		3B27A6572DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NektarTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3B27A6582DC23937009A5CBD /* Debug */,
@@ -563,7 +565,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		3B27A65A2DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NEKTAR-ApplicationUITests" */ = {
+		3B27A65A2DC23937009A5CBD /* Build configuration list for PBXNativeTarget "NektarUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3B27A65B2DC23937009A5CBD /* Debug */,
