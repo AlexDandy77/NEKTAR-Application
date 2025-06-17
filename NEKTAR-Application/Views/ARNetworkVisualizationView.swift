@@ -198,7 +198,7 @@ struct ARDisplayView: UIViewRepresentable {
             return ModelEntity() // Return an empty model
         }
 
-        let cylinderMesh = MeshResource.generateCylinder(height: distance, radius: thickness / 2)
+        let cylinderMesh = MeshResource.generateCylinder(height: distance, radius: thickness * 1.5)
         let lineEntity = ModelEntity(mesh: cylinderMesh, materials: [material])
         lineEntity.position = (startPoint + endPoint) / 2
         
@@ -274,6 +274,8 @@ struct ARDisplayView: UIViewRepresentable {
 
             let positionScaleFactor: Float = 0.0025 // Adjust as needed for AR scale
             let linkThickness: Float = 0.004 // Thickness of the connecting lines
+            let xOffset: Float = -1.0
+            //let yOffset: Float = -0.1
             let verticalOffset: Float = 0.05 // Vertical offset for nodes above the plane
             var nodeEntities: [String: Entity] = [:]
 
@@ -309,9 +311,10 @@ struct ARDisplayView: UIViewRepresentable {
                     // Configure the entity's position, scale, and name
                     let posX = Float(nodeData.position.x) * positionScaleFactor
                     let posZ = Float(nodeData.position.y) * positionScaleFactor
-                    loadedEntity.position = [posX, verticalOffset, posZ]
+                    loadedEntity.position = [posX + xOffset, verticalOffset, posZ]
                     loadedEntity.scale = [0.1, 0.1, 0.1] // Adjust scale as needed for visual size
                     loadedEntity.name = nodeData.id // Set name for tap detection
+                    
                     
                     // Generate collision shapes for tap detection
                     await loadedEntity.generateCollisionShapes(recursive: true)
