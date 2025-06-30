@@ -6,7 +6,7 @@
 //
 
 import Testing
-@testable import NEKTAR_Application
+@testable import Nektar
 
 struct NEKTAR_ApplicationTests {
 

@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var authService: AuthenticationService
+    @EnvironmentObject var authService: AuthManager
 
     var body: some View {
         if authService.isLoggedIn {
-            PersonalCabinetView()
+			PersonalCabinetView(authService: authService)
         } else {
             LoginView()
         }

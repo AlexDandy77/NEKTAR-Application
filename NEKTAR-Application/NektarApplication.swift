@@ -4,7 +4,7 @@ let baseURLString = "http://ec2-56-228-42-67.eu-north-1.compute.amazonaws.com/ap
 
 @main
 struct NektarApplication: App {
-    @StateObject var authService = AuthenticationService()
+    @StateObject var authService = AuthManager()
 
     var body: some Scene {
         WindowGroup {
